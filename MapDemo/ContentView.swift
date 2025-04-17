@@ -1,21 +1,8 @@
-//
-//  ContentView.swift
-//  MapDemo
-//
-//  Created by Alexander Kozharin on 17.04.25.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        MainView()
     }
 }
 
