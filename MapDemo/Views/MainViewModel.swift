@@ -10,6 +10,12 @@ class MainViewModel: ObservableObject {
     @Published var transportationType: MKDirectionsTransportType = .automobile
     @Published var transportationImage: String = "car"
     @Published var timeImage: String = "clock"
+    @Published var errorCalculating: Bool = false
+    @Published var isSearching: Bool = false
+    @Published var sourceTextfield: String = ""
+    @Published var destinationTextfield: String = ""
+    @Published var searchResults = [SearchResults]()
+    
     
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
     
@@ -34,7 +40,7 @@ class MainViewModel: ObservableObject {
             return true
         } catch let error{
             print("\(error.localizedDescription)\n")
-            print(error)
+            errorCalculating = true
             return false
         }
     }
@@ -60,6 +66,9 @@ class MainViewModel: ObservableObject {
         
         
     }
+    
+    
+    
 }
 
 
