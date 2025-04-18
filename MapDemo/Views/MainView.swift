@@ -9,13 +9,7 @@ struct MainView: View {
     @State private var locationService = LocationService(completer: .init())
     var body: some View {
         VStack {
-//            Map(position: $cameraFrom) {
-//                Marker("tower", coordinate: vm.from)
-//            }
-//            
-//            .clipShape(RoundedRectangle(cornerRadius: 25))
-//            .ignoresSafeArea()
-            MapWithSearch(ownCoordinate: $vm.from, isMapShowing: $vm.isShowingMapFrom, locationData: $vm.destinationTextfield) {
+            MapWithSearch(ownCoordinate: $vm.from, isMapShowing: $vm.isShowingMapFrom, locationData: $vm.destinationTextfield, camera: $cameraFrom) {
                 Task {
                     vm.searchResults = (try? await locationService.search(with: vm.destinationTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
@@ -23,15 +17,14 @@ struct MainView: View {
                         vm.isSearching.toggle()
                         print("\(location)")
                         vm.isShowingMapFrom = true
+                        showDestinationKeyboard = false
+                        cameraFrom = .region(MKCoordinateRegion(center: vm.from, latitudinalMeters: 200, longitudinalMeters: 200))
                     }
-                    
                 }
-                
             }
             .environmentObject(locationService)
             HStack {
                 TextField("From", text: $vm.sourceTextfield)
-//                    .lineLimit(3)
                     .font(Font.system(size: 21, weight: .medium))
                     .frame(minWidth: 10, maxWidth: 80, minHeight: 20, maxHeight: 100)
                     .focused($showSourceKeyboard)
@@ -65,7 +58,6 @@ struct MainView: View {
                                         Text(transport.name.rawValue)
                                     }
                                 }
-                                
                             }
                         }
                         Spacer()
@@ -82,7 +74,7 @@ struct MainView: View {
             }
             .frame(height: 100)
             .padding(.horizontal)
-            MapWithSearch(ownCoordinate: $vm.to, isMapShowing: $vm.isShowingMapTo, locationData: $vm.sourceTextfield) {
+            MapWithSearch(ownCoordinate: $vm.to, isMapShowing: $vm.isShowingMapTo, locationData: $vm.sourceTextfield, camera: $cameraTo) {
                 Task {
                     vm.searchResults = (try? await locationService.search(with: vm.sourceTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
@@ -90,56 +82,13 @@ struct MainView: View {
                         vm.isSearching.toggle()
                         print("\(location)")
                         vm.isShowingMapTo = true
+                        showSourceKeyboard = false
+                        cameraTo = .region(MKCoordinateRegion(center: vm.to, latitudinalMeters: 200, longitudinalMeters: 200))
                     }
-                    
                 }
-                
             }
             .environmentObject(locationService)
             .ignoresSafeArea()
-//            ZStack {
-//                RoundedRectangle(cornerRadius: 25)
-//                    .background(content: {
-//                        Color.red
-//                    })
-//                    .ignoresSafeArea()
-//                List {
-//                    ForEach(locationService.completions) { completion in
-//                        Button {
-//                            print(completion.title)
-//                            Task {
-//                                vm.searchResults = (try? await locationService.search(with: vm.sourceTextfield)) ?? []
-//                                //                                print(vm.searchResults)
-//                                if let location = vm.searchResults.first?.location {
-//                                    vm.from = location
-//                                    vm.isSearching.toggle()
-//                                    print("\(location)")
-//                                }
-//                                vm.isShowingMapTo = true
-//                                vm.sourceTextfield = completion.title
-//                                
-//                            }
-//                        } label: {
-//                            VStack(alignment: .leading) {
-//                                Text(completion.title)
-//                                
-//                                    .font(.title3)
-//                                Text(completion.subtitle)
-//                                    .font(.caption)
-//                            }
-//                            .foregroundStyle(.white)
-//                        }
-//                        
-//                    }
-//                }
-//                if vm.isShowingMapTo {
-//                    Map(position: $cameraTo) {
-//                        Marker("heh", coordinate: vm.to)
-//                    }
-//                    .clipShape(RoundedRectangle(cornerRadius: 25))
-//                    .ignoresSafeArea()
-//                }
-//            }
         }
         .onAppear {
             cameraFrom = .region(MKCoordinateRegion(center: vm.from, latitudinalMeters: 200, longitudinalMeters: 200))

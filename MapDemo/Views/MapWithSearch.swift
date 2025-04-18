@@ -6,7 +6,7 @@ struct MapWithSearch: View {
     @Binding var ownCoordinate: CLLocationCoordinate2D
     @Binding var isMapShowing: Bool
     @Binding var locationData: String
-    @State var camera: MapCameraPosition = .automatic
+    @Binding var camera: MapCameraPosition
     
     @EnvironmentObject var locationService: LocationService
     var content: () -> Void
@@ -39,12 +39,6 @@ struct MapWithSearch: View {
             }
 
         }
-        .onAppear {
-//            camera = .region(MKCoordinateRegion(center: ownCoordinate, latitudinalMeters: 200, longitudinalMeters: 200))
-        }
-        .onChange(of: locationData) { oldValue, newValue in
-//            camera = .region(MKCoordinateRegion(center: ownCoordinate, latitudinalMeters: 200, longitudinalMeters: 200))
-        }
         .clipShape(RoundedRectangle(cornerRadius: 25))
         
     }
@@ -59,7 +53,7 @@ struct MapWithSearch: View {
     @Previewable @State var destination: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 40.73130329269146, longitude: -73.99705445144045)
     @Previewable @State var searchResults = [SearchResults]()
     @Previewable @State var location: String = ""
-    
+    @Previewable @State var camera: MapCameraPosition = .automatic
     VStack {
         TextField("From", text: $text)
             .onChange(of: text) { oldValue, newValue in
@@ -67,7 +61,7 @@ struct MapWithSearch: View {
             }
         
         
-        MapWithSearch(ownCoordinate: $source, isMapShowing: $isMapShowing, locationData: $location) {
+        MapWithSearch(ownCoordinate: $source, isMapShowing: $isMapShowing, locationData: $location, camera: $camera) {
             Task {
                 searchResults = (try? await locationService.search(with: text)) ?? []
                 if let location = searchResults.first?.location {
