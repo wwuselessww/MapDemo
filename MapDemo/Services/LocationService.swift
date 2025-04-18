@@ -1,7 +1,7 @@
 import Foundation
 import MapKit
 
-@Observable class LocationService: NSObject, MKLocalSearchCompleterDelegate {
+class LocationService: NSObject, MKLocalSearchCompleterDelegate, ObservableObject {
     private let completer: MKLocalSearchCompleter
     
     var completions = [SearchCompletions]()
@@ -14,7 +14,7 @@ import MapKit
     }
     
     func update(queryFragment: String) {
-        completer.resultTypes = .pointOfInterest
+        completer.resultTypes = .address
         completer.queryFragment = queryFragment
     }
     
@@ -31,7 +31,7 @@ import MapKit
     func search(with query: String, coordinate: CLLocationCoordinate2D? = nil) async throws -> [SearchResults] {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
-        request.resultTypes = .pointOfInterest
+        request.resultTypes = .address
         
         if let coordinate {
             request.region = .init(.init(origin: .init(coordinate), size: .init(width: 1, height: 1)))

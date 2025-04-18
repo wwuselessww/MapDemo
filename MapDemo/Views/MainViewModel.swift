@@ -16,6 +16,9 @@ class MainViewModel: ObservableObject {
     @Published var destinationTextfield: String = ""
     @Published var searchResults = [SearchResults]()
     
+    @Published var isShowingMapTo: Bool = true
+    @Published var isShowingMapFrom: Bool = true
+    
     
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
     
@@ -33,9 +36,11 @@ class MainViewModel: ObservableObject {
         do {
            let results = try await directions.calculate()
             let route = results.routes.first
-            withAnimation {
-                distance = String(format: "%.1f" ,((route?.distance ?? -1) / 1000)) + " km"
-                time = String(format: "%.2f", (route?.expectedTravelTime ?? -1) / 60) + " m"
+            await MainActor.run {
+                withAnimation {
+                    distance = String(format: "%.1f" ,((route?.distance ?? -1) / 1000)) + " km"
+                    time = String(format: "%.2f", (route?.expectedTravelTime ?? -1) / 60) + " m"
+                }
             }
             return true
         } catch let error{
@@ -46,16 +51,18 @@ class MainViewModel: ObservableObject {
     }
     
     func changeTransportation(type transport: Transport) async {
-        switch transport {
-        case .car:
-            transportationType = .automobile
-            transportationImage = "car"
-        case .transit:
-            transportationType = .transit
-            transportationImage = "bus"
-        case .walking:
-            transportationType = .walking
-            transportationImage = "figure.walk"
+        await MainActor.run {
+            switch transport {
+            case .car:
+                transportationType = .automobile
+                transportationImage = "car"
+            case .transit:
+                transportationType = .transit
+                transportationImage = "bus"
+            case .walking:
+                transportationType = .walking
+                transportationImage = "figure.walk"
+            }
         }
         
         do {
