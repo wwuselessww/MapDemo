@@ -9,6 +9,22 @@ struct MainView: View {
     @State private var locationService = LocationService(completer: .init())
     var body: some View {
         VStack {
+            HStack {
+                Spacer()
+                NavigationLink {
+                    Navigation()
+                } label: {
+                    Text("Navigate")
+                        .foregroundStyle(vm.errorCalculating ? Color.clear : Color.white)
+                        .padding(.horizontal)
+                        .padding(.vertical, 2)
+                        .background {
+                            RoundedRectangle(cornerRadius: 8)
+                                .foregroundStyle(vm.errorCalculating ? Color.clear : Color.blue)
+                        }
+                }
+
+            }
             MapWithSearch(ownCoordinate: $vm.from, isMapShowing: $vm.isShowingMapFrom, locationData: $vm.destinationTextfield, camera: $cameraFrom) {
                 Task {
                     vm.searchResults = (try? await locationService.search(with: vm.destinationTextfield)) ?? []

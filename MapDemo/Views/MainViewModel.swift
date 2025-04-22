@@ -10,7 +10,7 @@ class MainViewModel: ObservableObject {
     @Published var transportationType: MKDirectionsTransportType = .automobile
     @Published var transportationImage: String = "car"
      var timeImage: String = "clock"
-    @Published var errorCalculating: Bool = false
+    
     
     @Published var sourceTextfield: String = ""
     @Published var destinationTextfield: String = ""
@@ -19,9 +19,10 @@ class MainViewModel: ObservableObject {
     @Published var isShowingMapTo: Bool = true
     @Published var isShowingMapFrom: Bool = true
     
+    @Published var errorCalculating: Bool = true
     
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
-    
+    @MainActor
     func calcualteDistance() async throws {
         print("calcualte")
         let fromMarker = MKPlacemark(coordinate: from)
@@ -39,24 +40,27 @@ class MainViewModel: ObservableObject {
             let route = results.routes.first
             print("distance =", (route?.distance ?? -1) / 1000)
             print("time=", route?.expectedTravelTime ?? -1 / 60)
-            await MainActor.run {
+            
+
                 withAnimation {
                     distance = String(format: "%.1f" ,((route?.distance ?? -1) / 1000)) + " km"
-//                    print("distance =", distance)
                     time = String(format: "%.2f", (route?.expectedTravelTime ?? -1) / 60) + " m"
-//                    print("time=", time)
+                    errorCalculating = false
                 }
-            }
             
         } catch let error{
             print("\(error.localizedDescription)\n")
             print("hihi")
-            errorCalculating = true
+            
+            withAnimation(.easeInOut) {
+                errorCalculating = true
+            }
+            
         }
     }
-    
+    @MainActor
     func changeTransportation(type transport: Transport) async {
-        await MainActor.run {
+        
             switch transport {
             case .car:
                 transportationType = .automobile
@@ -68,7 +72,7 @@ class MainViewModel: ObservableObject {
                 transportationType = .walking
                 transportationImage = "figure.walk"
             }
-        }
+        
         
         do {
             try await calcualteDistance()

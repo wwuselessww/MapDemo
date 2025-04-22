@@ -2,7 +2,7 @@ import SwiftUI
 import MapKit
 
 struct MapWithSearch: View {
-    
+    @Environment(\.colorScheme) var colorScheme
     @Binding var ownCoordinate: CLLocationCoordinate2D
     @Binding var isMapShowing: Bool
     @Binding var locationData: String
@@ -23,8 +23,10 @@ struct MapWithSearch: View {
                         VStack(alignment: .leading) {
                             Text(searchResult.title)
                                 .font(.title3)
+                                .foregroundStyle(colorScheme == .light ? Color.black : Color.white)
                             Text(searchResult.subtitle)
                                 .font(.caption)
+                                .foregroundStyle(colorScheme == .light ? Color.black : Color.white)
                         }
                         .foregroundStyle(.white)
                     }
