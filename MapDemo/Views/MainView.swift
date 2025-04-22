@@ -14,11 +14,15 @@ struct MainView: View {
                     vm.searchResults = (try? await locationService.search(with: vm.destinationTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
                         vm.from = location
-                        vm.isSearching.toggle()
                         print("\(location)")
                         vm.isShowingMapFrom = true
                         showDestinationKeyboard = false
-                        cameraFrom = .region(MKCoordinateRegion(center: vm.from, latitudinalMeters: 200, longitudinalMeters: 200))
+                        cameraFrom = vm.updateCamera(location: vm.from)
+                        do {
+                            try await vm.calcualteDistance()
+                        } catch {
+                            print(error)
+                        }
                     }
                 }
             }
@@ -79,11 +83,16 @@ struct MainView: View {
                     vm.searchResults = (try? await locationService.search(with: vm.sourceTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
                         vm.to = location
-                        vm.isSearching.toggle()
-                        print("\(location)")
                         vm.isShowingMapTo = true
                         showSourceKeyboard = false
-                        cameraTo = .region(MKCoordinateRegion(center: vm.to, latitudinalMeters: 200, longitudinalMeters: 200))
+                        cameraTo = vm.updateCamera(location: vm.to)
+                        do {
+                            try await vm.calcualteDistance()
+                        } catch {
+                            print(error)
+                        }
+                            
+                        
                     }
                 }
             }
@@ -91,13 +100,10 @@ struct MainView: View {
             .ignoresSafeArea()
         }
         .onAppear {
-            cameraFrom = .region(MKCoordinateRegion(center: vm.from, latitudinalMeters: 200, longitudinalMeters: 200))
-            cameraTo = .region(MKCoordinateRegion(center: vm.to, latitudinalMeters: 200, longitudinalMeters: 200))
-            
+            cameraFrom = vm.updateCamera(location: vm.from)
+            cameraTo = vm.updateCamera(location: vm.to)
         }
-        .onChange(of: vm.isSearching) { oldValue, newValue in
-            cameraFrom = .region(MKCoordinateRegion(center: vm.from, latitudinalMeters: 200, longitudinalMeters: 200))
-        }
+    
         .onChange(of: vm.transportationImage) { oldValue, newValue in
             Task {
                 do {
@@ -115,6 +121,7 @@ struct MainView: View {
         .onChange(of: vm.destinationTextfield) { oldValue, newValue in
             locationService.update(queryFragment: newValue)
             vm.isShowingMapFrom = false
+
         }
     }
 }

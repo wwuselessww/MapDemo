@@ -3,15 +3,15 @@ import MapKit
 
 class MainViewModel: ObservableObject {
     @Published var from: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 40.740979140527834, longitude: -73.98966672823792)
-    
     @Published var to: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 40.73130329269146, longitude: -73.99705445144045)
+    
     @Published var time: String = ""
     @Published var distance: String = ""
     @Published var transportationType: MKDirectionsTransportType = .automobile
     @Published var transportationImage: String = "car"
-    @Published var timeImage: String = "clock"
+     var timeImage: String = "clock"
     @Published var errorCalculating: Bool = false
-    @Published var isSearching: Bool = false
+    
     @Published var sourceTextfield: String = ""
     @Published var destinationTextfield: String = ""
     @Published var searchResults = [SearchResults]()
@@ -22,7 +22,7 @@ class MainViewModel: ObservableObject {
     
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
     
-    func calcualteDistance() async throws -> Bool{
+    func calcualteDistance() async throws {
         print("calcualte")
         let fromMarker = MKPlacemark(coordinate: from)
         let toMarker = MKPlacemark(coordinate: to)
@@ -34,19 +34,24 @@ class MainViewModel: ObservableObject {
         
         let directions = MKDirections(request: request)
         do {
-           let results = try await directions.calculate()
+            print("here")
+            let results = try await directions.calculate()
             let route = results.routes.first
+            print("distance =", (route?.distance ?? -1) / 1000)
+            print("time=", route?.expectedTravelTime ?? -1 / 60)
             await MainActor.run {
                 withAnimation {
                     distance = String(format: "%.1f" ,((route?.distance ?? -1) / 1000)) + " km"
+//                    print("distance =", distance)
                     time = String(format: "%.2f", (route?.expectedTravelTime ?? -1) / 60) + " m"
+//                    print("time=", time)
                 }
             }
-            return true
+            
         } catch let error{
             print("\(error.localizedDescription)\n")
+            print("hihi")
             errorCalculating = true
-            return false
         }
     }
     
@@ -72,6 +77,10 @@ class MainViewModel: ObservableObject {
         }
         
         
+    }
+    
+    func updateCamera(location: CLLocationCoordinate2D ) -> MapCameraPosition {
+        return  .region(MKCoordinateRegion(center: location, latitudinalMeters: 200, longitudinalMeters: 200))
     }
     
     
