@@ -13,6 +13,7 @@ struct MainView: View {
                 Spacer()
                 NavigationLink {
                     Navigation()
+                        .environmentObject(vm)
                 } label: {
                     Text("Navigate")
                         .foregroundStyle(vm.errorCalculating ? Color.clear : Color.white)
@@ -25,9 +26,9 @@ struct MainView: View {
                 }
 
             }
-            MapWithSearch(ownCoordinate: $vm.from, isMapShowing: $vm.isShowingMapFrom, locationData: $vm.destinationTextfield, camera: $cameraFrom) {
+            MapWithSearch(ownCoordinate: $vm.from, isMapShowing: $vm.isShowingMapFrom, locationData: $vm.sourceTextfield, camera: $cameraFrom) {
                 Task {
-                    vm.searchResults = (try? await locationService.search(with: vm.destinationTextfield)) ?? []
+                    vm.searchResults = (try? await locationService.search(with: vm.sourceTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
                         vm.from = location
                         print("\(location)")
@@ -94,9 +95,9 @@ struct MainView: View {
             }
             .frame(height: 100)
             .padding(.horizontal)
-            MapWithSearch(ownCoordinate: $vm.to, isMapShowing: $vm.isShowingMapTo, locationData: $vm.sourceTextfield, camera: $cameraTo) {
+            MapWithSearch(ownCoordinate: $vm.to, isMapShowing: $vm.isShowingMapTo, locationData: $vm.destinationTextfield, camera: $cameraTo) {
                 Task {
-                    vm.searchResults = (try? await locationService.search(with: vm.sourceTextfield)) ?? []
+                    vm.searchResults = (try? await locationService.search(with: vm.destinationTextfield)) ?? []
                     if let location = vm.searchResults.first?.location {
                         vm.to = location
                         vm.isShowingMapTo = true
@@ -132,11 +133,11 @@ struct MainView: View {
         }
         .onChange(of: vm.sourceTextfield) { oldValue, newValue in
             locationService.update(queryFragment: newValue)
-            vm.isShowingMapTo = false
+            vm.isShowingMapFrom = false
         }
         .onChange(of: vm.destinationTextfield) { oldValue, newValue in
             locationService.update(queryFragment: newValue)
-            vm.isShowingMapFrom = false
+            vm.isShowingMapTo = false
 
         }
     }

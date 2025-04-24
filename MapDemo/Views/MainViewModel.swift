@@ -18,11 +18,13 @@ class MainViewModel: ObservableObject {
     
     @Published var isShowingMapTo: Bool = true
     @Published var isShowingMapFrom: Bool = true
-    
+
     @Published var errorCalculating: Bool = true
-    
+    var route: MKRoute?
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
     @MainActor
+    
+    
     func calcualteDistance() async throws {
         print("calcualte")
         let fromMarker = MKPlacemark(coordinate: from)
@@ -37,7 +39,7 @@ class MainViewModel: ObservableObject {
         do {
             print("here")
             let results = try await directions.calculate()
-            let route = results.routes.first
+            route = results.routes.first 
             print("distance =", (route?.distance ?? -1) / 1000)
             print("time=", route?.expectedTravelTime ?? -1 / 60)
             
