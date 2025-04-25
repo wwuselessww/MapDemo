@@ -19,7 +19,8 @@ class MainViewModel: ObservableObject {
     @Published var isShowingMapTo: Bool = true
     @Published var isShowingMapFrom: Bool = true
 
-    @Published var errorCalculating: Bool = true
+    @Published var errorText: String? = nil
+    
     var route: MKRoute?
     let transportationTypes: [TransportationModel] = [.init(name: .car, imageStr: "car"), .init(name: .transit, imageStr: "bus"), .init(name: .walking, imageStr: "figure.walk")]
     @MainActor
@@ -47,7 +48,7 @@ class MainViewModel: ObservableObject {
                 withAnimation {
                     distance = String(format: "%.1f" ,((route?.distance ?? -1) / 1000)) + " km"
                     time = String(format: "%.2f", (route?.expectedTravelTime ?? -1) / 60) + " m"
-                    errorCalculating = false
+                    errorText = nil
                 }
             
         } catch let error{
@@ -55,7 +56,7 @@ class MainViewModel: ObservableObject {
             print("hihi")
             
             withAnimation(.easeInOut) {
-                errorCalculating = true
+                errorText = "Cant calculate distanse"
             }
             
         }
@@ -76,11 +77,11 @@ class MainViewModel: ObservableObject {
             }
         
         
-        do {
-            try await calcualteDistance()
-        } catch {
-            print("no transport here")
-        }
+//        do {
+//            try await calcualteDistance()
+//        } catch {
+//            print("no transport here")
+//        }
         
         
     }
