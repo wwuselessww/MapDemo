@@ -16,12 +16,12 @@ struct MainView: View {
                         .environmentObject(vm)
                 } label: {
                     Text("Navigate")
-                        .foregroundStyle(vm.errorCalculating ? Color.clear : Color.white)
+                        .foregroundStyle(vm.errorText != nil  ? Color.clear : Color.white)
                         .padding(.horizontal)
                         .padding(.vertical, 2)
                         .background {
                             RoundedRectangle(cornerRadius: 8)
-                                .foregroundStyle(vm.errorCalculating ? Color.clear : Color.blue)
+                                .foregroundStyle(vm.errorText != nil ? Color.clear : Color.blue)
                         }
                 }
 
@@ -45,10 +45,11 @@ struct MainView: View {
             }
             .environmentObject(locationService)
             HStack {
-                TextField("From", text: $vm.sourceTextfield)
+                TextField("From", text: $vm.sourceTextfield, axis: .vertical)
                     .font(Font.system(size: 21, weight: .medium))
                     .frame(minWidth: 10, maxWidth: 80, minHeight: 20, maxHeight: 100)
                     .focused($showSourceKeyboard)
+                    .fixedSize(horizontal: false, vertical: true)
                     .onSubmit {
                         showSourceKeyboard = false
                     }
@@ -56,7 +57,7 @@ struct MainView: View {
                 GeometryReader { geo in
                     VStack {
                         Spacer()
-                        Info(image: $vm.timeImage, text: $vm.time) {}
+                        Info(image: $vm.timeImage, text: $vm.time, errorText: .constant(nil)) {}
                         HStack {
                             let circleCount = Int(geo.size.width / 12)
                             ForEach(0..<circleCount, id: \.self) { _ in
@@ -65,7 +66,7 @@ struct MainView: View {
                             }
                             Image(systemName: "arrow.right")
                         }
-                        Info(image: $vm.transportationImage, text: $vm.distance) {
+                        Info(image: $vm.transportationImage, text: $vm.distance, errorText: $vm.errorText) {
                             ForEach(0..<vm.transportationTypes.count, id: \.self) { index in
                                 let transport = vm.transportationTypes[index]
                                 Button {
@@ -85,7 +86,7 @@ struct MainView: View {
                     }
                     .frame(minWidth: 10, maxWidth: .infinity)
                 }
-                TextField("To", text: $vm.destinationTextfield)
+                TextField("To", text: $vm.destinationTextfield, axis: .vertical)
                     .frame(minWidth: 10, maxWidth: 80)
                     .font(Font.system(size: 21, weight: .medium))
                     .focused($showDestinationKeyboard)
